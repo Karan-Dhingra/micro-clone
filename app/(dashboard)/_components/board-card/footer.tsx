@@ -7,7 +7,7 @@ type Props = {
     title: string
     authorLabel: string
     createdAtLabel: string
-    onClick: () => void
+    onClick: (e: any) => void
     disabled: boolean
 }
 
