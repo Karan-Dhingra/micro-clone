@@ -6,6 +6,7 @@ export default function Loading() {
             <Image
                 src="/loader.gif"
                 alt="logo"
+                unoptimized
                 width={250}
                 height={250}
                 className='animate-pulse duration-700'
