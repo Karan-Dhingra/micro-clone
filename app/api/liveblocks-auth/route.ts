@@ -40,6 +40,5 @@ export async function POST(request: Request) {
   
   const { status, body } = await session.authorize();
 
-  console.log(status, body)
   return new Response(body, { status });
 }
