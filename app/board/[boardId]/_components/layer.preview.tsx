@@ -32,7 +32,7 @@ const LayerPreview = memo(({
         )
     
     default:
-        console.warn("Unknown")
+        // console.log("Unknown")
   }
 
   return (

@@ -10,6 +10,7 @@ import { api } from '@/convex/_generated/api'
 import ConfirmModal from './confirm.modal'
 import { Button } from './ui/button'
 import { useRenameModal } from '@/store/use-rename-modal'
+import { useRouter } from 'next/navigation'
 
 type Props = {
     children: React.ReactNode
@@ -26,12 +27,17 @@ const Actions = ({
     id,
     title
 }: Props) => {
+  const router = useRouter();
+
   const { onOpen } = useRenameModal();
   const {mutate, pending} = useApiMutation(api.board.remove)
 
   const onDelete = () => {
     mutate({ id })
-      .then(() => toast.success("Board Deleted"))
+      .then(() => {
+        toast.success("Board Deleted");
+        router.replace("/")
+      })
       .catch(() => toast.error("Failed to delete board"))
   }
 
