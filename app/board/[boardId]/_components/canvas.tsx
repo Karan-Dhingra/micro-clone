@@ -1,19 +1,22 @@
 "use client"
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { nanoid } from 'nanoid'
 import { LiveObject } from '@liveblocks/client'
-import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useStorage } from '@liveblocks/react/suspense'
+import { useCanRedo, useCanUndo, useHistory, useMutation, useOthersMapped, useSelf, useStorage } from '@liveblocks/react/suspense'
 
 import Info from './info'
 import Participants from './participants'
 import Toolbar from './toolbar'
 import CursorPresence from './cursor.presence'
-import { connectionIdToColor, FindIntersectionLayerWithRectangle, penPointsToPathLayer, pointerEventToCanvasPoint, resizeBounds } from '@/lib/utils'
+import { colorToCSS, connectionIdToColor, FindIntersectionLayerWithRectangle, penPointsToPathLayer, pointerEventToCanvasPoint, resizeBounds } from '@/lib/utils'
 import { Camera, CanvasMode, CanvasState, Color, LayerType, Point, Side, XYWH } from '@/types/canvas'
 import LayerPreview from './layer.preview'
 import SelectionBox from './selection.box'
 import SelectionTools from './selection.tools'
+import { Path } from './_path'
+import { useDisableScrollBounce } from '@/hooks/use-disable-scroll-bounce'
+import { useDeleteLayer } from '@/hooks/use-delete-layer'
 
 type Props = {
     boardId: string
@@ -24,6 +27,7 @@ const SELECTION_THRESHOLD = 5 // Magic Number - Companies
 
 const Canvas = ({ boardId }: Props) => {
   const layerIds = useStorage(root => root.layerIds);
+  const pencilDraft = useSelf(me => me.presence.pencilDraft)
 
   const [canvasState, setCanvasState] = useState<CanvasState>({
     mode: CanvasMode.None
@@ -35,9 +39,38 @@ const Canvas = ({ boardId }: Props) => {
     b: 255
   })
 
+  useDisableScrollBounce();
   const history = useHistory();
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
+  const deleteLayers = useDeleteLayer();
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      switch(e.key) {
+        // case "Backspace": 
+        //   deleteLayers();
+        //   break;
+        case "z": 
+          if(e.ctrlKey || e.metaKey) {
+            if(e.shiftKey) {
+              history.redo();
+            }else {
+              history.undo();
+            }
+          }
+
+          break;
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+    }
+
+  }, [history, deleteLayers])
 
   const unselectLayers = useMutation(({self, setMyPresence}) => {
     if(self.presence.selection.length > 0) {
@@ -363,6 +396,14 @@ const Canvas = ({ boardId }: Props) => {
               />
             )}
             <CursorPresence />
+            {pencilDraft != null && pencilDraft.length > 0 && (
+              <Path
+                points={pencilDraft}
+                fill={colorToCSS(lastUsedColor)}
+                x={0}
+                y={0}
+              />
+            )}
           </g>
         </svg>
     </div>

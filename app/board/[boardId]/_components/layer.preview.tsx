@@ -5,7 +5,7 @@ import Rectangle from './_rectangle'
 import Ellipse from './_ellipse'
 import { Text } from './_text'
 import { Note } from './_note'
-import { Path } from './_point'
+import { Path } from './_path'
 import { colorToCSS } from '@/lib/utils'
 
 type Props = {

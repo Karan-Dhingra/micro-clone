@@ -144,8 +144,8 @@ export function penPointsToPathLayer(points: number[][], color: Color): PathLaye
   }
 }
 
-export function getSvgPathFromStroke(stroke: number [] []) {
-  if (!stroke.length) return;
+export function getSvgPathFromStroke(stroke: number[][]) {
+  if (!stroke.length) return "";
 
   const d = stroke.reduce (
     (acc, [x0, y0], i, arr) => {
